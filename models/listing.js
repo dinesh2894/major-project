@@ -1,13 +1,15 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const DEFAULT_IMAGE_URL = "https://wallpaperaccess.com/full/223267.jpg";
+
 const listingSchema = new Schema({
     title: String,
     description: String,
     image: {
         type: String,
-        default: "https://wallpaperaccess.com/full/223267.jpg",
-        set: (v) => v === "" ? "https://wallpaperaccess.com/full/223267.jpg" : v,
+        default: DEFAULT_IMAGE_URL,
+        set: (v) => v === "" ? DEFAULT_IMAGE_URL : v,
     },
     price: Number,
     location: String,
@@ -15,5 +17,4 @@ const listingSchema = new Schema({
 });
 
 const Listing = mongoose.model("Listing", listingSchema);
-
 module.exports = Listing;
