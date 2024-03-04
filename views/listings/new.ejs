@@ -4,9 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>WanderLust</title>
 </head>
 <body>
-
+<form method="POST" action="/listings">
+    <label><input name="listing[title]" placeholder="Enter your title" type="text"></label>
+    <br/><br/>
+    <label><textarea name="listing[description]" placeholder="Enter your description here"></textarea></label>
+    <br/><br/>
+    <label><input name="listing[image]" placeholder="Enter image URL/Link" type="text"></label>
+    <br/><br/>
+    <label><input name="listing[price]" placeholder="Enter price" type="number"></label>
+    <br/><br/>
+    <label><input name="listing[country]" placeholder="Enter country" type="text"></label>
+    <br/><br/>
+    <label><input name="listing[location]" placeholder="Enter location" type="text"></label>
+    <br/><br/>
+    <button>Add</button>
+</form>
 </body>
 </html>
