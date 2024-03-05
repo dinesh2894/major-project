@@ -98,6 +98,8 @@ app.delete("/listings/:id", async (req, res) => {
 //     res.send("successful testing");
 // });
 
+
+// Server 
 app.listen(port, () => {
     console.log(`listening port on ${port}`);
 });
