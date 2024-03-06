@@ -28,6 +28,7 @@ async function main() {
     await mongoose.connect(MONGO_URL);
 }
 
+// root
 app.get("/", (req, res) => {
     res.send("Hello! I am root!!");
 })
@@ -99,7 +100,7 @@ app.delete("/listings/:id", async (req, res) => {
 // });
 
 
-// Server 
+//-- Server 
 app.listen(port, () => {
     console.log(`listening port on ${port}`);
 });
