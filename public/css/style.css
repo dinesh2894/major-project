@@ -18,7 +18,6 @@ body {
 
 
 /* footer section */
-
 .f-info-links a {
     text-decoration: none;
     color: #222222;
@@ -29,8 +28,7 @@ body {
 
 }
 
-.f-info-links,
-.f-info-socials {
+.f-info-links, .f-info-socials {
     width: 100%;
     display: flex;
     align-items: center;
