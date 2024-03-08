@@ -1,13 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>WanderLust</title>
-</head>
-<body>
+<% layout('/layouts/boilerplate') -%>
 <h3>Listing Details</h3>
+<div class="card" style="width: 18rem;">
+    <img src="<%= listing.image %>" class="card-img-top show-img" alt="listing_image">
+    <div class="card-body">
+        <h5 class="card-title">Card title</h5>
+    </div>
+</div>
 <ul>
     <li><%= listing.title %></li>
     <li><%= listing.description %></li>
@@ -21,5 +19,3 @@
 <form method="post" action="/listings/<%= listing._id %>?_method=DELETE">
     <button>Delete this listing</button>
 </form>
-</body>
-</html>

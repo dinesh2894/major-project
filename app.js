@@ -21,7 +21,7 @@ const MONGO_URL = `mongodb://127.0.0.1:27017/${DATABASE}`;
 main().then(() => {
     console.log("connected to DB");
 }).catch((err) => {
-    console.log();
+    console.log(err);
 });
 
 async function main() {
