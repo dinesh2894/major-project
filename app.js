@@ -9,6 +9,7 @@ const ejsMate = require("ejs-mate");
 const {engine} = require("express/lib/application");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
+const {listingSchema} = require("./schema.js");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -64,6 +65,15 @@ app.post("/listings",
             throw new ExpressError(400,"Send valid data for listing");
         }
         const newListing = new Listing(req.body.listing);
+
+        if(!newListing.title){
+            throw new ExpressError(400,"Title is missing!");
+        }if(!newListing.description){
+            throw new ExpressError(400,"Description is missing!");
+        }if(!newListing.country){
+            throw new ExpressError(400,"Country is missing!");
+        }
+
         await newListing.save();
         console.log(newListing);
         res.redirect("/listings");
