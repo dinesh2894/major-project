@@ -36,6 +36,16 @@ app.get("/", (req, res) => {
     res.send("Hello! I am root!!");
 })
 
+const validateListing = (req, res, next) => {
+    let {error} = listingSchema.validate(req.body);
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+}
+
 // Index Route
 app.get("/listings", async (req, res) => {
     const allListings = await Listing.find({});
@@ -59,30 +69,15 @@ app.get("/listings/:id",
 );
 
 // Create Route
-app.post("/listings",
-    wrapAsync(async (req, res) => {
-        if(!req.body.listing){
-            throw new ExpressError(400,"Send valid data for listing");
-        }
+app.post("/listings", validateListing, wrapAsync(async (req, res) => {
         const newListing = new Listing(req.body.listing);
-
-        if(!newListing.title){
-            throw new ExpressError(400,"Title is missing!");
-        }if(!newListing.description){
-            throw new ExpressError(400,"Description is missing!");
-        }if(!newListing.country){
-            throw new ExpressError(400,"Country is missing!");
-        }
-
         await newListing.save();
-        console.log(newListing);
         res.redirect("/listings");
     })
 );
 
 // Edit Route
-app.get("/listings/:id/edit",
-    wrapAsync(async (req, res) => {
+app.get("/listings/:id/edit", validateListing, wrapAsync(async (req, res) => {
         let {id} = req.params;
         const listing = await Listing.findById(id);
         res.render("listings/edit.ejs", {listing});
@@ -90,8 +85,7 @@ app.get("/listings/:id/edit",
 );
 
 // Update Route
-app.put("/listings/:id",
-    wrapAsync(async (req, res) => {
+app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
         let {id} = req.params;
         await Listing.findByIdAndUpdate(id, {...req.body.listing});
         res.redirect(`/listings/${id}`);
@@ -132,7 +126,7 @@ app.use((err, req, res, next) => {
     let {statusCode = 500, message = "Something went wrong!!"} = err;
     // res.send("Something went wrong!");
     // res.status(statusCode).send(message);
-    res.status(statusCode).render("error.ejs",{message});
+    res.status(statusCode).render("error.ejs", {message});
 });
 
 //-- Server 
