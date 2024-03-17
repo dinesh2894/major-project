@@ -10,6 +10,7 @@ const {engine} = require("express/lib/application");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 const {listingSchema} = require("./schema.js");
+const Review = require("./models/review");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -63,7 +64,7 @@ app.get("/listings/:id",
     wrapAsync(async (req, res) => {
         console.log("show route");
         let {id} = req.params;
-        const listing = await Listing.findById( id );
+        const listing = await Listing.findById(id);
         // const allListings = await Listing.find({});
         res.render("listings/show.ejs", {listing});
     })
@@ -80,9 +81,9 @@ app.post("/listings", validateListing, wrapAsync(async (req, res) => {
 // Edit Route
 app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
         let {id} = req.params;
-    console.log(id);
+        console.log(id);
         const listing = await Listing.findById(id);
-    console.log(listing);
+        console.log(listing);
         res.render("listings/edit.ejs", {listing});
     })
 );
@@ -104,6 +105,22 @@ app.delete("/listings/:id",
         res.redirect('/listings');
     })
 );
+
+// Reviews
+// Post route
+app.post("/listings/:id/reviews", async (req, res) => {
+    let listing = await Listing.findById(req.params.id);
+    let newReview = new Review(req.body.review);
+
+    listing.reviews.push(newReview);
+
+    await newReview.save();
+    await listing.save();
+
+    console.log("new review saved");
+    // res.send("new review saved");
+    res.redirect(`/listings/${listing._id}`);
+})
 
 // app.get("/test-listing", async (req, res) => {
 //     let sampleListing = new Listing({
