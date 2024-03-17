@@ -9,7 +9,7 @@ const ejsMate = require("ejs-mate");
 const {engine} = require("express/lib/application");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema} = require("./schema.js");
+const {listingSchema, reviewSchema} = require("./schema.js");
 const Review = require("./models/review");
 
 app.set("view engine", "ejs");
@@ -46,6 +46,15 @@ const validateListing = (req, res, next) => {
         next();
     }
 }
+const validateReview = (req, res, next) => {
+    let {error} = reviewSchema.validate(req.body);
+    if (error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+}
 
 // Index Route
 app.get("/listings", async (req, res) => {
@@ -64,7 +73,7 @@ app.get("/listings/:id",
     wrapAsync(async (req, res) => {
         console.log("show route");
         let {id} = req.params;
-        const listing = await Listing.findById(id);
+        const listing = await Listing.findById(id).populate("reviews");
         // const allListings = await Listing.find({});
         res.render("listings/show.ejs", {listing});
     })
@@ -97,8 +106,7 @@ app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
 );
 
 // Delete Route
-app.delete("/listings/:id",
-    wrapAsync(async (req, res) => {
+app.delete("/listings/:id", wrapAsync(async (req, res) => {
         let {id} = req.params;
         let deleteListing = await Listing.findByIdAndDelete(id);
         console.log(deleteListing);
@@ -108,7 +116,7 @@ app.delete("/listings/:id",
 
 // Reviews
 // Post route
-app.post("/listings/:id/reviews", async (req, res) => {
+app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
     let listing = await Listing.findById(req.params.id);
     let newReview = new Review(req.body.review);
 
@@ -120,7 +128,7 @@ app.post("/listings/:id/reviews", async (req, res) => {
     console.log("new review saved");
     // res.send("new review saved");
     res.redirect(`/listings/${listing._id}`);
-})
+}))
 
 // app.get("/test-listing", async (req, res) => {
 //     let sampleListing = new Listing({
