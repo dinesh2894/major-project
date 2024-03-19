@@ -3,14 +3,14 @@ const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
 const port = 8080;
-const Listing = require("./models/listing");
+
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const {engine} = require("express/lib/application");
-const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema, reviewSchema} = require("./schema.js");
-const Review = require("./models/review");
+
+const listings = require("./routes/listing.route.js");
+const reviews = require("./routes/review.route.js");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -37,120 +37,8 @@ app.get("/", (req, res) => {
     res.send("Hello! I am root!!");
 })
 
-const validateListing = (req, res, next) => {
-    let {error} = listingSchema.validate(req.body);
-    if (error) {
-        let errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
-}
-const validateReview = (req, res, next) => {
-    let {error} = reviewSchema.validate(req.body);
-    if (error) {
-        let errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
-}
-
-// Index Route
-app.get("/listings", async (req, res) => {
-    const allListings = await Listing.find();
-    res.render("listings/index.ejs", {allListings});
-});
-
-// New Route
-app.get("/listings/new", (req, res) => {
-    console.log("new route");
-    res.render("listings/new.ejs");
-});
-
-// Show Routes
-app.get("/listings/:id",
-    wrapAsync(async (req, res) => {
-        console.log("show route");
-        let {id} = req.params;
-        const listing = await Listing.findById(id).populate("reviews");
-        // const allListings = await Listing.find({});
-        res.render("listings/show.ejs", {listing});
-    })
-);
-
-// Create Route
-app.post("/listings", validateListing, wrapAsync(async (req, res) => {
-        const newListing = new Listing(req.body.listing);
-        await newListing.save();
-        res.redirect("/listings");
-    })
-);
-
-// Edit Route
-app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
-        let {id} = req.params;
-        console.log(id);
-        const listing = await Listing.findById(id);
-        console.log(listing);
-        res.render("listings/edit.ejs", {listing});
-    })
-);
-
-// Update Route
-app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
-        let {id} = req.params;
-        await Listing.findByIdAndUpdate(id, {...req.body.listing});
-        res.redirect(`/listings/${id}`);
-    })
-);
-
-// Delete Route
-app.delete("/listings/:id", wrapAsync(async (req, res) => {
-        let {id} = req.params;
-        console.log(id);
-         let deleteListing = await Listing.findByIdAndDelete(id);
-
-        res.redirect('/listings');
-    }),
-);
-
-// Reviews
-// Post Review Route
-app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
-    listing.reviews.push(newReview);
-    await newReview.save();
-    await listing.save();
-    console.log("new review saved");
-    // res.send("new review saved");
-    res.redirect(`/listings/${listing._id}`);
-}));
-
-// Delete Review Route
-app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
-        let {id, reviewId} = req.params;
-        await Listing.findByIdAndUpdate(id, {$pull: {reviews: reviewId}});
-        await Review.findByIdAndDelete(reviewId);
-        res.redirect(`/listings/${id}`);
-    })
-);
-
-
-// app.get("/test-listing", async (req, res) => {
-//     let sampleListing = new Listing({
-//         title: "My new villa",
-//         description: "By the beach",
-//         price: 1200,
-//         location: "Calangute, Goa",
-//         country: "India",
-//     });
-//
-//     await sampleListing.save();
-//     console.log("Sample was saved");
-//     res.send("successful testing");
-// });
+app.use("/listings", listings);
+app.use("/listings/:id/reviews", reviews);
 
 
 app.use("*", (req, res, next) => {
